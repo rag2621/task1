@@ -5,7 +5,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-
+app.use('/mcp', (req, res, next) => {
+  res.setHeader('Content-Encoding', 'identity');
+  next();
+});
 function parseNaturalToExpression(query) {
   query = query.toLowerCase().trim();
 
