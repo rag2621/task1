@@ -5,10 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-app.use('/mcp', (req, res, next) => {
-  res.setHeader('Content-Encoding', 'identity');
-  next();
-});
+
 function parseNaturalToExpression(query) {
   query = query.toLowerCase().trim();
 
@@ -18,7 +15,7 @@ function parseNaturalToExpression(query) {
   }
 
   if (query.includes('log')) {
-    const num = query.match(/\d+/)?.[0];
+    const num = query.match(/\d+(\.\d+)?/)?.[0];
     return `log(${num})`;
   }
 
@@ -41,42 +38,24 @@ function parseNaturalToExpression(query) {
 }
 
 app.post('/mcp', (req, res) => {
-  res.set({
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache',
-    Connection: 'keep-alive',
-  });
-
   const { query } = req.body;
-  if (!query) {
-    res.write(`event: error\ndata: Missing query\n\n`);
-    return res.end();
-  }
+  if (!query) return res.status(400).json({ error: 'Missing query' });
 
   try {
     const parsed = parseNaturalToExpression(query);
+    const result = nerdamer(parsed).toString();
 
-    res.write(`event: message\ndata: Parsing query: "${query}"\n\n`);
-    setTimeout(() => {
-      res.write(`event: message\ndata: Converted to expression: ${parsed}\n\n`);
-
-      setTimeout(() => {
-        const result = nerdamer(parsed).toString();
-        res.write(`event: message\ndata: Result: ${result}\n\n`);
-
-        res.write(`event: done\ndata: done\n\n`);
-        res.end();
-
-      }, 1000);
-
-    }, 1000);
+    res.json({
+      input: query,
+      parsedExpression: parsed,
+      result
+    });
   } catch (err) {
     console.error(err);
-    res.write(`event: error\ndata: ${err.message}\n\n`);
-    res.end();
+    res.status(500).json({ error: err.message });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`🔁 MCP SSE Server running on http://localhost:${PORT}`);
+  console.log(`✅ MCP JSON Server running at http://localhost:${PORT}`);
 });
