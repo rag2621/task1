@@ -44,7 +44,7 @@ app.post('/mcp', (req, res) => {
 
   try {
     const parsedExpression = parseNaturalToExpression(query);
-    const result = nerdamer(parsedExpression).evaluate().text();
+    const result = nerdamer(parsedExpression).evaluate().text(); // ✅ FIXED: evaluate result
 
     res.json({
       input: query,
