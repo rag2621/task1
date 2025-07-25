@@ -43,7 +43,7 @@ app.post('/mcp', (req, res) => {
 
   try {
     const parsed = parseNaturalToExpression(query);
-    const result = nerdamer(parsed).toString();
+  
 
     res.json({
       input: query,
