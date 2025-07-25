@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const nerdamer = require('nerdamer/all.min');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -42,12 +43,12 @@ app.post('/mcp', (req, res) => {
   if (!query) return res.status(400).json({ error: 'Missing query' });
 
   try {
-    const parsed = parseNaturalToExpression(query);
-  
+    const parsedExpression = parseNaturalToExpression(query);
+    const result = nerdamer(parsedExpression).evaluate().text();
 
     res.json({
       input: query,
-      parsedExpression: parsed,
+      parsedExpression,
       result
     });
   } catch (err) {
@@ -59,3 +60,4 @@ app.post('/mcp', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ MCP JSON Server running at http://localhost:${PORT}`);
 });
+
