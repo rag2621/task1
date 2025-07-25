@@ -39,7 +39,7 @@ function parseNaturalToExpression(query) {
 
 app.post('/mcp', (req, res) => {
   res.set({
-    'Content-Type': 'text/event-stream',
+    'Content-Type': 'application/json',
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
   });
